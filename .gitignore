@@ -1,0 +1,4 @@
+# Secrets
+LLM/huggingface_key.txt
+*.env
+.env
