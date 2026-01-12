@@ -1,0 +1,99 @@
+You will be given a short description from an Airbnb listing in Edinburgh. It may describe either:
+- the property itself, or
+- the surrounding neighbourhood.
+
+Your task is to identify **places or locations described as being near** the property — for example, anything mentioned as a short walk away, close by, or nearby.
+
+You should categorise all such places into three groups:
+
+1. `specific_locations` — locations that are **named and mappable**, such as landmarks, parks, venues, or neighbourhood features (e.g. "The Meadows", "Ocean Terminal").
+2. `general_locations` — vague or generic references to places that **are not named or are too broad to geocode**, such as "train station", "shops", or "city centre".
+3. `parent_locations` — the neighbourhood or area where the property is located (e.g. "Marchmont", "Leith"). Do not include these in the other two categories unless the location is explicitly described as a separate nearby place. 
+
+Correct minor spelling mistakes for named places (e.g. "Murayfield" -> "Murrayfield Stadium") so they match real map locations.
+
+For `general_locations`, strip out descriptive words and articles (e.g. "the lively bars" -> "bars", "local shops" -> "shops")..
+
+If a vague reference clearly refers to a specific place, correct it (e.g. "the castle" -> "Edinburgh Castle"). But only do this when the reference is **unambiguous**. For example, "the station" may refer to multiple locations and should remain general unless disambiguated in the text.
+
+If a location is mentioned more than once, list it only once in the appropriate category.
+
+Return your output in the following JSON format, marked "<|startofjson|>" and "<|endofjson|>" before and after the JSON block:
+
+```
+{
+  "specific_locations": [...],
+  "general_locations": [...],
+  "parent_locations": [...],
+}
+```
+
+Here are some examples of inputs and expected outputs. 
+
+Example 1: Vague reference to specific location, reference to parent location.
+Description:
+"This bright flat in Marchmont is just a few minutes from the Meadows and near the university."
+
+Output: 
+```
+{
+  "specific_locations": ["The Meadows", "University of Edinburgh"],
+  "general_locations": [],
+  "parent_locations": ["Marchmont"]
+}
+```
+Example 2: Vague reference to specific location, reference to parent location, spelling mistake (Lieth -> Leith).
+Description:
+"A cosy studio located in Lieth, just steps from The Shore and right beside Ocean Terminal. You're also a short bus ride from the city centre, and less than 30 mins from the airport by tram."
+
+Output:
+```
+{
+  "specific_locations": ["The Shore", "Ocean Terminal", "Edinburgh International Airport"],
+  "general_locations": ["city centre"],
+  "parent_locations":["Leith"]
+}
+```
+
+Example 3: Vague references and adjectives.
+Description:
+"This cosy apartment is a few minutes’ walk from the station, is handy for local shops and has a great view of the castle."
+
+Output:
+```
+{
+  "specific_locations": ["Edinburgh Castle"],
+  "general_locations": ["train station", "shops"],
+  "parent_locations": []
+}
+```
+
+Example 4: spelling mistake (Princess -> Princes), parent location, ambiguous wording, abbreviation (St -> Street). 
+Description:
+"Located on Market St, We're just a few minutes' walk from Princess Street, and handy for both the new and old town."
+
+Output:
+```
+{
+  "specific_locations": ["Princes Street", "New Town", "Old Town"],
+  "general_locations": [],
+  "parent_locations": ["Market Street"]
+}
+```
+
+Example 5: No locations present.
+Description:
+“This conveniently located apartment features high ceilings, modern decor, and a fully equipped kitchen.”
+
+Output:
+```
+{
+  "specific_locations": [],
+  "general_locations": [],
+  "parent_locations": []
+}
+```
+
+If you must reason, do so briefly, but always output **only a single JSON object and nothing else**.
+
+Now try with the following property description:
